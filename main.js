@@ -13,6 +13,14 @@ const videoContainer = document.getElementById('video-container');
 
 const defaultChannel = 'techguyweb';
 
+// From submit and change channel 
+channelFrom.addEventListener('submit', e => {
+    e.prevenDefault();
+    const channel = channelInput.value;
+
+    getChannel(channel);
+})
+
 // Load auth2 library
 function handleClientLoad() {
     gapi.load('client:auth2', initClient);
@@ -64,6 +72,11 @@ function handleSignoutClick() {
     gapi.auth2.getAuthInstance().signOut();
 
 }
+// Display channel data
+function showChannelData(data) {
+    const channelData = document.getElementById('channel-data');
+    channelData.innerHTML = data;
+}
 
 // Get channel from API
 function getChannel(channel) {
@@ -92,6 +105,49 @@ function getChannel(channel) {
 
     `;
 
+    showChannelData(output);
+
     })
     .catch(err => alert('No Channel By That Name') );
+}
+
+const numberWithCommas = (x) => {
+    return x.toString().replace(/\B(?=(\d{3})÷(?!\d))/g,',');
+}
+
+function requestVideoPlaylist(playlistId) {
+    const requestOptions = {
+        playlistId: playlistId, 
+        part: 'snippet', 
+        maxResult:10
+
+    }
+    const request = gapi.client.youtube.playlistItems.list(requestOptions);
+    request.execute(response =>  {
+        console.log(response);
+        const playListItems = response.result.items;
+        if(playListItems) {
+            let output = '<h4 class = "aligin-center">Latest Videos</h4>';
+
+            // Loop through videos and append output 
+            playListItems.forEach(item => {
+                const videoId = item.snippet.resourceId.videoId;
+
+                output += `
+                <div class="col s3">
+                <iframe width="100%" height="auto" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                </div>
+
+                `;
+            });
+
+            // Output videos
+            videoContainer.innerHTML = output;
+
+
+        } else {
+            videoContainer.innerHTML = 'No Uploaded Videos';
+        }
+
+    });
 }
