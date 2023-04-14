@@ -11,8 +11,8 @@
 }
 
 .authorize-button  {background-color: red;}
+.signout-button{background-color: red;}
 
-
-form{
+.channel-form{
   background: green;
 }
